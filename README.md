@@ -8,7 +8,7 @@ Mažas Flask API, su kuriuo dirbsite visą DevOps kursą. Be nustatymų naudoja 
 ./run.sh
 ```
 
-Atidarykite http://localhost:5000. Reikia Python 3.10+ (`python3 --version`). Windows: naudokite WSL su Ubuntu (`wsl --install`), ne PowerShell. Jei `python3 -m venv` nusiskundžia (Ubuntu): `sudo apt install python3-venv`.
+Atidarykite http://localhost:5000. Veikia su Python 3.9+ (`python3 --version`), joks papildomas diegimas Mac'e nereikalingas. Windows: naudokite WSL su Ubuntu (`wsl --install`), ne PowerShell. Jei `python3 -m venv` nusiskundžia (Ubuntu): `sudo apt install python3-venv`.
 
 ## Maršrutai
 
