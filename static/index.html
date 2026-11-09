@@ -5,51 +5,145 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>devops-projektas</title>
 <style>
-  body { font-family: system-ui, sans-serif; margin: 0; }
-  #bar { height: 12px; background: blue; }
-  main { max-width: 36rem; margin: 1.5rem auto; padding: 0 1rem; }
-  dl { display: grid; grid-template-columns: max-content 1fr; gap: .25rem 1rem; }
-  dt { font-weight: 600; }
-  input { padding: .4rem; } button { padding: .4rem .8rem; }
+  :root {
+    --bg:#f4f5f7; --fg:#1b1f24; --muted:#4b5563; --card:#ffffff; --line:#c9ced6;
+    --accent:#0b57d0; --on-accent:#ffffff; --focus:#7a3df0;
+    --ok:#0a6b3d; --err:#b42318; --neutral:#4b5563;
+    --blue:#0b57d0; --green:#0a6b3d;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg:#14171c; --fg:#eceff3; --muted:#aab2bd; --card:#1d2128; --line:#3b4350;
+      --accent:#8ab4f8; --on-accent:#0b1220; --focus:#ffd166;
+      --ok:#5fd39a; --err:#ff9a90; --neutral:#aab2bd;
+      --blue:#8ab4f8; --green:#5fd39a;
+    }
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--fg); font:16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  #bar { height:12px; background:var(--neutral); }
+  main { max-width:640px; margin:0 auto; padding:16px; }
+  header { display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin:8px 0 4px; }
+  h1 { margin:0; font-size:2rem; line-height:1.2; }
+  h2 { margin:0; font-size:1.25rem; }
+  .badge { display:inline-block; padding:4px 14px; border-radius:999px; background:var(--neutral); color:var(--bg); font-weight:700; font-size:1.125rem; letter-spacing:.05em; }
+  .status { display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin:0 0 16px; }
+  .pill { font-weight:600; color:var(--neutral); }
+  .pill.ok { color:var(--ok); } .pill.err { color:var(--err); }
+  section { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:16px; margin-bottom:16px; }
+  section h2 { margin-bottom:12px; }
+  label { display:block; font-weight:600; margin-bottom:6px; }
+  input { width:100%; font:inherit; min-height:44px; padding:8px 10px; border:1px solid var(--line); border-radius:8px; background:var(--bg); color:var(--fg); }
+  button { font:inherit; min-height:44px; padding:8px 18px; border-radius:8px; border:2px solid var(--accent); background:var(--accent); color:var(--on-accent); cursor:pointer; font-weight:600; }
+  button.small { padding:4px 12px; background:transparent; color:var(--accent); }
+  button:disabled { opacity:.6; cursor:default; }
+  :focus-visible { outline:3px solid var(--focus); outline-offset:2px; }
+  .row { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-top:10px; flex-wrap:wrap; }
+  .count { color:var(--muted); } .count.over { color:var(--err); font-weight:600; }
+  .msg { min-height:1.5em; margin-top:10px; font-weight:600; }
+  .msg.ok { color:var(--ok); } .msg.err { color:var(--err); }
+  .head { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+  .head h2 { margin:0; }
+  ul { list-style:none; margin:8px 0 0; padding:0; }
+  li { border-top:1px solid var(--line); padding:10px 0; overflow-wrap:anywhere; }
+  footer { color:var(--muted); text-align:center; padding:8px 0 24px; overflow-wrap:anywhere; }
 </style>
 </head>
 <body>
 <div id="bar"></div>
 <main>
-  <h1>devops-projektas</h1>
-  <dl>
-    <dt>Versija</dt><dd id="version">…</dd>
-    <dt>Kompiuteris</dt><dd id="hostname">…</dd>
-    <dt>Duomenų bazė</dt><dd id="db">…</dd>
-  </dl>
-  <h2>Daiktai</h2>
-  <ul id="items"></ul>
-  <form id="form">
-    <input id="name" placeholder="Naujas daiktas" maxlength="100" required>
-    <button>Pridėti</button>
-  </form>
+  <header>
+    <h1>devops-projektas</h1>
+    <span class="badge" id="env" aria-label="Aplinka">…</span>
+  </header>
+
+  <div class="status">
+    <span class="pill" id="db" role="status">DB tikrinama…</span>
+    <button type="button" class="small" id="b-status">Patikrinti</button>
+  </div>
+
+  <section>
+    <h2>Pridėti daiktą</h2>
+    <form id="form" novalidate>
+      <label for="name">Pavadinimas</label>
+      <input id="name" maxlength="100" autocomplete="off" aria-describedby="count msg">
+      <div class="row">
+        <span class="count" id="count">0/100</span>
+        <button type="submit">Pridėti</button>
+      </div>
+      <div class="msg" id="msg" role="status" aria-live="polite"></div>
+    </form>
+  </section>
+
+  <section>
+    <div class="head">
+      <h2>Daiktai</h2>
+      <button type="button" class="small" id="b-items">Atnaujinti</button>
+    </div>
+    <ul id="items"></ul>
+  </section>
+
+  <footer>Versija: <span id="version">…</span> · Kompiuteris: <span id="hostname">…</span> · Spalva: <span id="color">…</span></footer>
 </main>
+
 <script>
+const $ = id => document.getElementById(id);
+const COLORS = { blue: "var(--blue)", green: "var(--green)" };
+
 async function loadStatus() {
-  const s = await (await fetch("/status")).json();
-  document.getElementById("bar").style.background = s.color;
-  document.getElementById("version").textContent = s.version;
-  document.getElementById("hostname").textContent = s.hostname;
-  document.getElementById("db").textContent = (s.db === "up" ? "prisijungta" : "neprisijungta") + " (" + s.db_type + ")";
+  try {
+    const s = await (await fetch("/status")).json();
+    $("bar").style.background = COLORS[s.color] || "var(--neutral)";
+    $("env").textContent = String(s.env || "local").toUpperCase();
+    $("version").textContent = s.version;
+    $("hostname").textContent = s.hostname;
+    $("color").textContent = s.color;
+    const up = s.db === "up";
+    $("db").textContent = "DB: " + (up ? "prisijungta" : "neprisijungta") + " (" + s.db_type + ")";
+    $("db").className = "pill " + (up ? "ok" : "err");
+  } catch (e) {
+    $("db").textContent = "Nepavyko gauti būsenos";
+    $("db").className = "pill err";
+  }
 }
+
 async function loadItems() {
-  const items = await (await fetch("/items")).json();
-  const ul = document.getElementById("items");
+  const ul = $("items");
   ul.textContent = "";
-  items.forEach(i => { const li = document.createElement("li"); li.textContent = i.name; ul.appendChild(li); });
+  try {
+    const items = await (await fetch("/items")).json();
+    items.forEach(i => { const li = document.createElement("li"); li.textContent = i.name; ul.appendChild(li); });
+  } catch (e) {
+    const li = document.createElement("li");
+    li.textContent = "Nepavyko gauti sąrašo";
+    ul.appendChild(li);
+  }
 }
-document.getElementById("form").addEventListener("submit", async e => {
-  e.preventDefault();
-  const name = document.getElementById("name").value;
-  await fetch("/items", { method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({name}) });
-  document.getElementById("name").value = "";
-  loadItems();
+
+function setMsg(text, cls) { $("msg").textContent = text; $("msg").className = "msg " + (cls || ""); }
+
+$("name").addEventListener("input", () => {
+  $("count").textContent = $("name").value.length + "/100";
 });
+
+$("form").addEventListener("submit", async e => {
+  e.preventDefault();
+  const name = $("name").value.trim();
+  if (!name) { setMsg("Įveskite pavadinimą.", "err"); return; }
+  try {
+    const r = await fetch("/items", { method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({name}) });
+    if (!r.ok) { throw new Error(); }
+    setMsg("Pridėta.", "ok");
+    $("name").value = "";
+    $("count").textContent = "0/100";
+    loadItems();
+  } catch (err) {
+    setMsg("Nepavyko pridėti.", "err");
+  }
+});
+
+$("b-status").addEventListener("click", loadStatus);
+$("b-items").addEventListener("click", loadItems);
 loadStatus(); loadItems();
 </script>
 </body>

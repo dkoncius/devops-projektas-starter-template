@@ -69,6 +69,7 @@ def status():
     return jsonify(
         version=os.environ.get("APP_VERSION", "dev"),
         color=os.environ.get("APP_COLOR", "blue"),
+        env=os.environ.get("APP_ENV", "local"),
         hostname=socket.gethostname(),
         db=db,
         db_type="mysql" if use_mysql() else "sqlite",

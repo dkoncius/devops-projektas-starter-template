@@ -29,7 +29,7 @@ Atidarykite http://localhost:5000. Veikia su Python 3.9+ (`python3 --version`), 
 ## Nustatymai (aplinkos kintamieji)
 
 Žr. `.env.example`. Nukopijuokite į `.env` (jis ignoruojamas Git, **niekada** jo nekelkite į GitHub).
-`APP_VERSION`, `APP_COLOR` keičia puslapio juostą ir versiją.
+`APP_VERSION`, `APP_COLOR` keičia versiją ir puslapio viršutinę juostą, `APP_ENV` keičia aplinkos ženkliuką (pvz. `local`, `dev`).
 
 ## MySQL (nuo 18 pamokos)
 
