@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="lt">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>devops-projektas</title>
+<style>
+  body { font-family: system-ui, sans-serif; margin: 0; }
+  #bar { height: 12px; background: blue; }
+  main { max-width: 36rem; margin: 1.5rem auto; padding: 0 1rem; }
+  dl { display: grid; grid-template-columns: max-content 1fr; gap: .25rem 1rem; }
+  dt { font-weight: 600; }
+  input { padding: .4rem; } button { padding: .4rem .8rem; }
+</style>
+</head>
+<body>
+<div id="bar"></div>
+<main>
+  <h1>devops-projektas</h1>
+  <dl>
+    <dt>Versija</dt><dd id="version">…</dd>
+    <dt>Kompiuteris</dt><dd id="hostname">…</dd>
+    <dt>Duomenų bazė</dt><dd id="db">…</dd>
+  </dl>
+  <h2>Daiktai</h2>
+  <ul id="items"></ul>
+  <form id="form">
+    <input id="name" placeholder="Naujas daiktas" maxlength="100" required>
+    <button>Pridėti</button>
+  </form>
+</main>
+<script>
+async function loadStatus() {
+  const s = await (await fetch("/status")).json();
+  document.getElementById("bar").style.background = s.color;
+  document.getElementById("version").textContent = s.version;
+  document.getElementById("hostname").textContent = s.hostname;
+  document.getElementById("db").textContent = (s.db === "up" ? "prisijungta" : "neprisijungta") + " (" + s.db_type + ")";
+}
+async function loadItems() {
+  const items = await (await fetch("/items")).json();
+  const ul = document.getElementById("items");
+  ul.textContent = "";
+  items.forEach(i => { const li = document.createElement("li"); li.textContent = i.name; ul.appendChild(li); });
+}
+document.getElementById("form").addEventListener("submit", async e => {
+  e.preventDefault();
+  const name = document.getElementById("name").value;
+  await fetch("/items", { method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({name}) });
+  document.getElementById("name").value = "";
+  loadItems();
+});
+loadStatus(); loadItems();
+</script>
+</body>
+</html>
