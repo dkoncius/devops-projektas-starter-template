@@ -8,7 +8,7 @@ Mažas Flask API, su kuriuo dirbsite visą DevOps kursą. Be nustatymų naudoja 
 ./run.sh
 ```
 
-Atidarykite http://localhost:5000. Veikia su Python 3.9+ (`python3 --version`), joks papildomas diegimas Mac'e nereikalingas. Windows: naudokite WSL su Ubuntu (`wsl --install`), ne PowerShell. Jei `python3 -m venv` nusiskundžia (Ubuntu): `sudo apt install python3-venv`.
+Atidarykite http://localhost:5001. Veikia su Python 3.9+ (`python3 --version`), joks papildomas diegimas Mac'e nereikalingas. Windows: naudokite WSL su Ubuntu (`wsl --install`), ne PowerShell. Jei `python3 -m venv` nusiskundžia (Ubuntu): `sudo apt install python3-venv`.
 
 ## Maršrutai
 
@@ -17,7 +17,7 @@ Atidarykite http://localhost:5000. Veikia su Python 3.9+ (`python3 --version`), 
 | `GET /health` | `{"status": "ok"}`, kodas 200 |
 | `GET /status` | versija, kompiuterio vardas, DB būsena |
 | `GET /items` | daiktų sąrašas |
-| `POST /items` | prideda daiktą: `curl -X POST -H 'Content-Type: application/json' -d '{"name":"X"}' localhost:5000/items` |
+| `POST /items` | prideda daiktą: `curl -X POST -H 'Content-Type: application/json' -d '{"name":"X"}' localhost:5001/items` |
 | `GET /` | paprastas puslapis |
 
 ## Testai
